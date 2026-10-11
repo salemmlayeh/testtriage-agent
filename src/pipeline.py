@@ -14,7 +14,7 @@ from langchain.agents import create_agent
 from langchain.chat_models import init_chat_model
 
 from agent import SYSTEM_PROMPT, TOOLS, print_trace
-
+from guardrails import check_report
 load_dotenv()
 TICKET_DIR = Path(__file__).resolve().parent.parent / "tickets"
 
@@ -115,16 +115,31 @@ def main():
         print("--- Draft report ---")
         print(report)
 
+        problems = []
+        if run_label.isdigit():
+            rule_problems = check_report(report, int(run_label))
+            if rule_problems:
+                print("\n--- Rule-based checks ---")
+                for p in rule_problems:
+                    print(f"- {p}")
+                problems += rule_problems
+
         if "--no-review" not in flags:
             print("\n--- Self-check ---")
-            problems = review_report(model, report, tool_results)
-            if problems.strip().strip(".").upper() == "OK":
+            review = review_report(model, report, tool_results)
+            if review.strip().strip(".").upper() == "OK":
                 print("Reviewer found no unsupported claims.")
             else:
-                print(problems)
-                report = revise_report(model, report, problems, tool_results)
-                print("\n--- Revised report ---")
-                print(report)
+                print(review)
+                problems.append(review)
+
+        if problems:
+            report = revise_report(model, report, "\n".join(problems), tool_results)
+            print("\n--- Revised report ---")
+            print(report)
+            if run_label.isdigit():
+                left = check_report(report, int(run_label))
+                print("\nRule-based checks after revision:", "passed" if not left else left)
 
         if "--no-ticket" not in flags:
             print()

@@ -42,11 +42,12 @@ Rules:
   generalize one example (a single voltage or current value) to the whole cluster.
 - Only name ECUs that appear in tool results.
 - A cluster with share_passed_on_retry below 0.1 is persistent, not intermittent.
-- Call out one ECU only if its value in failure_rate_by_ecu is at least 1.5 times the
-  run's overall fail_rate. Otherwise say the failures are spread evenly across ECUs.
-- Do not single out a CAN id from one example message as a faulty node unless several
-  failures share that id.
-  
+- Name an ECU as a suspect only if it is listed in ecus_well_above_average. If that
+  list is empty, say failures are spread evenly across ECUs and do not recommend
+  inspecting any specific ECU.
+- Never mention individual CAN ids (like 0x636) in the report; they differ in every
+  message and one example says nothing about a faulty node.
+
 Report format (plain text, under 250 words):
 VERDICT: one sentence.
 EVIDENCE: 3-5 short lines with the key numbers.
