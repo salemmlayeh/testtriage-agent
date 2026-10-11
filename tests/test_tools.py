@@ -48,11 +48,20 @@ def test_similar_failures_are_found():
         "timeout waiting for CAN message 0x1A3 after 500ms", exclude_run_id=3)
     assert result["n_matches"] > 0
     assert 3 not in result["runs_seen_in"]
-    
+
 def test_cluster_type_mix_adds_up():
     for cluster in tools.cluster_failures(3)["clusters"]:
         assert abs(sum(cluster["predicted_type_mix"].values()) - 1) < 0.05
 
+def test_summary_has_type_counts():
+    summary = tools.get_run_summary(3)
+    assert sum(summary["predicted_type_counts"].values()) == summary["failures"]
+
+def test_summary_has_ecu_rates():
+    rates = tools.get_run_summary(3)["failure_rate_by_ecu"]
+    assert len(rates) == 6 and all(0 <= r <= 1 for r in rates.values())
+def test_run7_has_no_concentrated_ecu():
+    assert tools.get_run_summary(7)["ecus_well_above_average"] == []    
 if __name__ == "__main__":
     all_tests = [fn for name, fn in sorted(globals().items()) if name.startswith("test_")]
     for fn in all_tests:

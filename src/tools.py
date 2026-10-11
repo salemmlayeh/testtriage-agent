@@ -111,8 +111,21 @@ def get_run_summary(run_id: int) -> dict:
         "times_baseline": round(run_rate / baseline, 1),
         "anomalous": run_rate > ANOMALY_FACTOR * baseline,
         "predicted_type_mix": mix(run_f),
+        "predicted_type_counts": {
+            str(k): int(v) for k, v in run_f["predicted_type"].value_counts().items()
+        },        
         "baseline_type_mix": mix(other_f),
         "top_ecus": run_f["ecu"].value_counts().head(3).to_dict(),
+        "failure_rate_by_ecu": {
+            str(ecu): round(float(rate), 3)
+            for ecu, rate in (run["result"] == "fail")
+            .groupby(run["ecu"]).mean().sort_values(ascending=False).items()
+        },      
+        "ecus_well_above_average": [
+            str(ecu)
+            for ecu, rate in (run["result"] == "fail").groupby(run["ecu"]).mean().items()
+            if rate >= 1.5 * run_rate
+        ],          
         "share_passed_on_retry": round(retry_pass, 2),
     }
 
