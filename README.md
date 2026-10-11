@@ -75,7 +75,14 @@ The model is chosen with one line in `.env` (`LLM_MODEL`), so providers can be s
 
 Two runs contain planted incidents for the agent to find: **run 3** (117 failures, mostly communication) and **run 7** (75 failures, mostly out-of-range). The generator knows the true failure type of every row, so models can be scored honestly.
 
-![Failures per run](docs/images/01_data_generation.png)
+<p>
+  <img src="docs/images/09_failures_per_run.png" width="49%" alt="Failures per run, with runs 3 and 7 highlighted">
+  <img src="docs/images/10_failure_types_per_run.png" width="49%" alt="Failure types per run">
+</p>
+
+Left: failures per run, with the two planted incidents in red. Right: the mix of failure types per run, using the generator's true labels.
+
+![Failures per run (terminal output)](docs/images/01_data_generation.png)
 ![Sample failure rows](docs/images/02_sample_failures.png)
 
 ## Classification
@@ -88,6 +95,13 @@ TF-IDF on the error text (with numbers and CAN ids replaced by placeholders) fol
 | Text + retry result | **0.976** | **0.870** | **0.939** | **0.979** |
 
 `out_of_range` and `timing` score a perfect 1.000, but that is partly because the synthetic messages are easy. The weak spot is `flaky`: one flaky message template is word-for-word a CAN timeout, so no text model can tell them apart. Adding the retry result helps because flaky tests usually pass on retry, **but I built the generator that way, so part of that gain is by design.**
+
+<p>
+  <img src="docs/images/03_confusion_matrix.png" width="49%" alt="Confusion matrix, error text only">
+  <img src="docs/images/03b_confusion_matrix_with_retry.png" width="49%" alt="Confusion matrix, error text plus retry result">
+</p>
+
+Left: error text only, where 8 of the 23 flaky tests are labeled communication. Right: with the retry result, where 3 of 23 are.
 
 ![Classifier results](docs/images/03_classifier_results.png)
 ![Text only vs. text + retry](docs/images/03b_retry_comparison.png)
@@ -103,6 +117,10 @@ KMeans (k = 4) on the same TF-IDF features, without using the labels.
 The clusters recover **message wording, not failure types**: communication failures are split across three clusters (three different wordings), while `out_of_range` and `timing` share one. That is still useful for triage. The silhouette score keeps rising with more clusters (0.934 at k = 10), which only reflects that the data has about a dozen message templates, so I did not pick k by silhouette.
 
 The clustering tool therefore reports a **type mix and a retry statistic per cluster**, so the agent can see that one cluster is, for example, two-thirds communication and one-third flaky.
+
+![KMeans clusters next to the true failure types](docs/images/04_clusters.png)
+
+Left: the four KMeans clusters. Right: the true failure types in the same 2D view (TF-IDF features reduced with truncated SVD, with a small jitter because many messages are identical). The group at the bottom right mixes communication and flaky points, because those messages have the same text.
 
 ![Clustering output](docs/images/04_clustering_output.png)
 ![Example cluster from the tool](docs/images/04d_cluster_example.png)
@@ -140,6 +158,10 @@ The most useful part of the project was looking at failures and fixing them at t
 
 **Takeaway:** use deterministic checks first and an LLM reviewer second. A model reviewing its own output can introduce errors.
 
+The figure below shows the data behind point 2. In both incident runs, no ECU crosses the "stands out" line (1.5 times the run's failure rate), so the right report says failures are spread across ECUs:
+
+![Failure rate per ECU in runs 3 and 7](docs/images/11_ecu_rates.png)
+
 ![Draft report](docs/images/06_draft_report.png)
 ![Self-check and revision, before the keep-the-draft safeguard](docs/images/06b_self_check_and_revision.png)
 
@@ -155,6 +177,8 @@ Twelve questions whose answers are computed directly from the CSV (not from the 
 - Without tools the model guesses (it answered "0 failures" and invented "ECU-4"). Its two hits were chance: a yes/no guess, and "NOT FOUND", which it would give for any run number.
 - The one miss with tools: "Which ECU had the most failures in run 3?" The agent answered Wiper (22) instead of WindowLifter (24), although `get_run_summary` lists the right answer. I did not tune the prompt for this question, to keep the test independent.
 - Question 4 passed only after I added `compare_runs` because of an earlier failure (3/4 to 4/4 on the first four questions), so it is not an independent test.
+
+![Pass/fail per question, with and without tools](docs/images/12_evaluation_grid.png)
 
 ![Evaluation table](docs/images/08_evaluation_table.png)
 
@@ -191,6 +215,7 @@ python src/train_classifier.py       # classifier + confusion matrix
 python src/train_classifier_retry.py # with the retry result
 python src/cluster_failures.py       # clustering
 python tests/test_tools.py           # offline checks, no model calls
+python src/make_figures.py           # extra charts in docs/images/, no model calls
 ```
 
 To use the agent you need a language model. Copy `.env.example` to `.env` and fill in your key and model (the free tier is rate-limited, and I hit a 20-requests-per-day limit on one model):
