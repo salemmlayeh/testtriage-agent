@@ -17,3 +17,10 @@
    2/12, and both hits were chance (a yes/no guess and "NOT FOUND", which it answers for
    any run). With tools (v1) it failed "which runs are anomalous": every tool worked on one
    run, so the agent checked only some runs. Fix: added a compare_runs tool (v2).
+
+7. Final evaluation (v2, gemini-3.1-flash-lite): 11/12 with tools, 2/12 without. The miss was
+   "which ECU had the most failures in run 3": the agent answered Wiper (22) instead of
+   WindowLifter (24), although get_run_summary lists top_ecus directly. Probable cause: it
+   aggregated cluster-level affected_ecus (top 3 per cluster only). Not tuned away on purpose,
+   to keep the test independent. Question 4 was fixed after a failure (compare_runs), so it is
+   not an independent test either.
