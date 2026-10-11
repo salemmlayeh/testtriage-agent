@@ -32,7 +32,9 @@ from tool results. Reply with ONLY the final answer in the requested format, wit
 explanation. If a run does not exist, reply NOT FOUND.
 - A run is anomalous only if get_run_summary says anomalous is true.
 - An ECU stands out only if it is listed in ecus_well_above_average.
-- Failure counts per type are in predicted_type_counts."""
+- Failure counts per type are in predicted_type_counts.
+- To compare runs or list anomalous runs, call compare_runs."""
+
 
 NOTOOLS_PROMPT = """Answer the question about ECU test runs. Reply with ONLY the final
 answer in the requested format, with no explanation."""

@@ -191,7 +191,24 @@ def find_similar_past_failures(message: str, min_similarity: float = 0.8,
                     .head(3).to_dict("records"),
     }
 
-
+def compare_runs() -> dict:
+    """Compare ALL runs at once: failure rate of each run and which runs are anomalous."""
+    df = _all_tests()
+    rate = (df["result"] == "fail").groupby(df["run_id"]).mean()
+    runs = []
+    for run_id, r in rate.items():
+        baseline = float(rate.drop(run_id).median())
+        runs.append({
+            "run_id": int(run_id),
+            "failures": int(((df["run_id"] == run_id) & (df["result"] == "fail")).sum()),
+            "fail_rate": round(float(r), 3),
+            "anomalous": bool(r > ANOMALY_FACTOR * baseline),
+        })
+    return {
+        "runs": runs,
+        "anomalous_runs": [r["run_id"] for r in runs if r["anomalous"]],
+        "highest_fail_rate_run": max(runs, key=lambda r: r["fail_rate"])["run_id"],
+    }
 # The list we will hand to the agent in Step 6
 TOOLS = [get_run_summary, get_failed_tests, cluster_failures,
          classify_failure, find_similar_past_failures]

@@ -1,0 +1,4 @@
+{"id": 1, "model": "google_genai:gemini-3.1-flash-lite", "mode": "tools", "question": "How many tests failed in run 3? Answer with a single integer.", "expected": "117", "answer": "117", "correct": true, "tool_calls": 1, "model_calls": 2}
+{"id": 2, "model": "google_genai:gemini-3.1-flash-lite", "mode": "tools", "question": "How many tests failed in run 7? Answer with a single integer.", "expected": "75", "answer": "75", "correct": true, "tool_calls": 1, "model_calls": 2}
+{"id": 3, "model": "google_genai:gemini-3.1-flash-lite", "mode": "tools", "question": "Which run has the highest failure rate? Answer with the run number only.", "expected": "3", "answer": "3", "correct": true, "tool_calls": 1, "model_calls": 2}
+{"id": 4, "model": "google_genai:gemini-3.1-flash-lite", "mode": "tools", "question": "Which runs are anomalous? Answer with the run numbers only, comma separated.", "expected": "[3, 7]", "answer": "3,7", "correct": true, "tool_calls": 1, "model_calls": 2}

@@ -62,6 +62,10 @@ def test_summary_has_ecu_rates():
     assert len(rates) == 6 and all(0 <= r <= 1 for r in rates.values())
 def test_run7_has_no_concentrated_ecu():
     assert tools.get_run_summary(7)["ecus_well_above_average"] == []    
+def test_compare_runs_finds_incidents():
+    result = tools.compare_runs()
+    assert result["anomalous_runs"] == [3, 7]
+    assert result["highest_fail_rate_run"] == 3
 if __name__ == "__main__":
     all_tests = [fn for name, fn in sorted(globals().items()) if name.startswith("test_")]
     for fn in all_tests:

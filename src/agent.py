@@ -47,7 +47,8 @@ Rules:
   inspecting any specific ECU.
 - Never mention individual CAN ids (like 0x636) in the report; they differ in every
   message and one example says nothing about a faulty node.
-
+- For questions about several runs (which runs are anomalous, which run is worst),
+  call compare_runs instead of checking runs one by one.
 Report format (plain text, under 250 words):
 VERDICT: one sentence.
 EVIDENCE: 3-5 short lines with the key numbers.
@@ -71,6 +72,7 @@ TOOLS = [
     t.cluster_failures,
     t.classify_failure,
     find_similar_past_failures,
+    t.compare_runs,
 ]
 
 
