@@ -12,3 +12,8 @@
    if the revision fails the rules.
 5. Free-tier quota: gemini-3-flash-preview allowed 20 requests/day. Switched to
    gemini-3.1-flash-lite; evaluation needs many calls, so quota planning matters.
+
+6. Evaluation (12 questions, answers computed from the CSV): without tools the model got
+   2/12, and both hits were chance (a yes/no guess and "NOT FOUND", which it answers for
+   any run). With tools (v1) it failed "which runs are anomalous": every tool worked on one
+   run, so the agent checked only some runs. Fix: added a compare_runs tool (v2).
