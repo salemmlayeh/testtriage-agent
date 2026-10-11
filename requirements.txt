@@ -3,7 +3,10 @@ anyio==4.15.1
 certifi==2026.7.22
 charset-normalizer==3.5.2
 cloudpickle==3.1.2
+contourpy==1.4.0
+cycler==0.12.1
 distro==1.9.0
+fonttools==4.66.1
 h11==0.16.0
 httpcore==1.0.9
 httpcore2==2.13.1
@@ -13,6 +16,7 @@ idna==3.20
 joblib==1.6.0
 jsonpatch==1.35
 jsonpointer==3.2.1
+kiwisolver==1.5.1
 langchain==1.4.4
 langchain-core==1.6.9
 langchain-protocol==0.0.19
@@ -21,14 +25,17 @@ langgraph-checkpoint==4.2.0
 langgraph-prebuilt==1.1.0
 langgraph-sdk==0.4.6
 langsmith==0.14.7
+matplotlib==3.11.2
 narwhals==2.27.1
 numpy==2.5.4
 orjson==3.13.0
 ormsgpack==1.12.2
 packaging==26.3
 pandas==3.0.6
+pillow==12.3.0
 pydantic==2.14.0
 pydantic_core==2.50.0
+pyparsing==3.3.3
 python-dateutil==2.9.0.post0
 PyYAML==6.0.3
 requests==2.34.2
