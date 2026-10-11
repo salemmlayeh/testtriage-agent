@@ -25,6 +25,8 @@ contradicts them. Check numbers, cluster descriptions, ECU names, and words like
 "intermittent" (a cluster with share_passed_on_retry below 0.1 is persistent).
 Also flag recommendations that contradict the evidence, for example inspecting an
 ECU when the report says failures are spread evenly.
+Do not flag "failures are spread evenly across ECUs" as wrong: an ECU stands out only
+if it is listed in ecus_well_above_average, and small differences do not count.
 Answer with a numbered list, one line per problem. If everything is supported,
 answer exactly: OK"""
 
@@ -115,6 +117,7 @@ def main():
         print("--- Draft report ---")
         print(report)
 
+        rule_problems = []
         problems = []
         if run_label.isdigit():
             rule_problems = check_report(report, int(run_label))
@@ -134,11 +137,14 @@ def main():
                 problems.append(review)
 
         if problems:
-            report = revise_report(model, report, "\n".join(problems), tool_results)
+            revised = revise_report(model, report, "\n".join(problems), tool_results)
             print("\n--- Revised report ---")
-            print(report)
-            if run_label.isdigit():
-                left = check_report(report, int(run_label))
+            print(revised)
+            left = check_report(revised, int(run_label)) if run_label.isdigit() else []
+            if left and not rule_problems:
+                print("\nThe revision fails rule-based checks that the draft passed. Keeping the draft.")
+            else:
+                report = revised
                 print("\nRule-based checks after revision:", "passed" if not left else left)
 
         if "--no-ticket" not in flags:
